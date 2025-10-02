@@ -1,0 +1,24 @@
+services:
+  api:
+    build: ./api
+    container_name: rest-node-api
+    ports:
+      - "5000:80"
+    volumes:
+      - api_data:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/health || exit 1"]
+      interval: 3s
+      timeout: 2s
+      retries: 10
+
+  client:
+    build: ./client
+    container_name: rest-node-client
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: "on-failure"
+
+volumes:
+  api_data:
